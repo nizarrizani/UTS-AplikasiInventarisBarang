@@ -1,15 +1,13 @@
 
-import java.awt.BorderLayout;
-import java.awt.GridLayout;
 import java.sql.*;
-import java.util.List;
 import javax.swing.*;
 
 import java.awt.BorderLayout;
-import java.awt.GridLayout;
-import java.sql.*;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.util.List;
-import javax.swing.*;
 
 public class EditBarangDialog extends JDialog {
 
@@ -27,58 +25,115 @@ public class EditBarangDialog extends JDialog {
         this.barang = barang;
         this.isCreateMode = isCreateMode;  // Menentukan apakah Create atau Edit
         setTitle(isCreateMode ? "Tambah Barang" : "Edit Barang");
-        setSize(300, 300);  // Ukuran dialog disesuaikan
-        setLocationRelativeTo(null);
+        setSize(400, 300);  // Ukuran dialog lebih besar agar lebih nyaman
+        setResizable(false);
+        setLocationRelativeTo(frame);
         setModal(true);
 
+        // Panel utama menggunakan GridBagLayout
         JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(6, 2));  // Menambahkan 1 baris untuk jenis dan lokasi
+        panel.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);  // Jarak antar komponen
 
-        panel.add(new JLabel("Nama:"));
-        namaField = new JTextField(barang != null ? barang.getNama() : "");  // Jika Create, biarkan kosong
-        panel.add(namaField);
+        // Label dan input untuk Nama
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.EAST;  // Label di sebelah kanan
+        panel.add(new JLabel("Nama:"), gbc);
 
-        panel.add(new JLabel("Harga:"));
-        // Membuat JSpinner untuk harga dengan step 1000
+        namaField = new JTextField(barang != null ? barang.getNama() : "");
+        gbc.gridx = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;  // Mengisi ruang horizontal
+        panel.add(namaField, gbc);
+
+        // Reset fill setelah penggunaan
+        gbc.fill = GridBagConstraints.NONE;
+
+        // Label dan input untuk Harga
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.anchor = GridBagConstraints.EAST;
+        panel.add(new JLabel("Harga:"), gbc);
+
         hargaSpinner = new JSpinner(new SpinnerNumberModel(barang != null ? barang.getHarga() : 0, 0, Integer.MAX_VALUE, 1000));
-        panel.add(hargaSpinner);
+        gbc.gridx = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        panel.add(hargaSpinner, gbc);
 
-        panel.add(new JLabel("Stok:"));
-        // Membuat JSpinner untuk stok
+        // Reset fill setelah penggunaan
+        gbc.fill = GridBagConstraints.NONE;
+
+        // Label dan input untuk Stok
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.anchor = GridBagConstraints.EAST;
+        panel.add(new JLabel("Stok:"), gbc);
+
         stokSpinner = new JSpinner(new SpinnerNumberModel(barang != null ? barang.getStok() : 0, 0, Integer.MAX_VALUE, 1));
-        panel.add(stokSpinner);
+        gbc.gridx = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        panel.add(stokSpinner, gbc);
 
-        // ComboBox untuk Jenis Barang
-        panel.add(new JLabel("Jenis:"));
+        // Reset fill setelah penggunaan
+        gbc.fill = GridBagConstraints.NONE;
+
+        // Label dan input untuk Jenis
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.anchor = GridBagConstraints.EAST;
+        panel.add(new JLabel("Jenis:"), gbc);
+
         jenisComboBox = new JComboBox<>();
-        jenisComboBox.setEditable(true);  // Mengizinkan pengguna untuk mengetikkan nilai
-        loadJenisOptions();  // Mengisi ComboBox dengan nilai dari database
-        jenisComboBox.setSelectedItem(barang != null ? barang.getJenis() : "");  // Set nilai default
-        panel.add(jenisComboBox);
+        jenisComboBox.setEditable(true);
+        loadJenisOptions();
+        jenisComboBox.setSelectedItem(barang != null ? barang.getJenis() : "");
+        gbc.gridx = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        panel.add(jenisComboBox, gbc);
 
-        // ComboBox untuk Lokasi Penyimpanan
-        panel.add(new JLabel("Lokasi Penyimpanan:"));
+        // Reset fill setelah penggunaan
+        gbc.fill = GridBagConstraints.NONE;
+
+        // Label dan input untuk Lokasi Penyimpanan
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.anchor = GridBagConstraints.EAST;
+        panel.add(new JLabel("Lokasi Penyimpanan:"), gbc);
+
         lokasiComboBox = new JComboBox<>();
-        lokasiComboBox.setEditable(true);  // Mengizinkan pengguna untuk mengetikkan nilai
-        loadLokasiOptions();  // Mengisi ComboBox dengan nilai dari database
-        lokasiComboBox.setSelectedItem(barang != null ? barang.getLokasiPenyimpanan() : "");  // Set nilai default
-        panel.add(lokasiComboBox);
+        lokasiComboBox.setEditable(true);
+        loadLokasiOptions();
+        lokasiComboBox.setSelectedItem(barang != null ? barang.getLokasiPenyimpanan() : "");
+        gbc.gridx = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        panel.add(lokasiComboBox, gbc);
 
-        // Tombol Simpan
+        // Reset fill setelah penggunaan
+        gbc.fill = GridBagConstraints.NONE;
+
+        // Panel tombol simpan dan batal
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout(FlowLayout.TRAILING));
+
         saveButton = new JButton(isCreateMode ? "Tambah" : "Simpan");
+        ImageIcon saveIcon = new ImageIcon(getClass().getResource("/assets/check.png"));
+        saveButton.setIcon(saveIcon);
         saveButton.addActionListener(e -> {
             saveData();
         });
 
         cancelButton = new JButton("Batal");
+        ImageIcon cancelIcon = new ImageIcon(getClass().getResource("/assets/cross.png"));
+        cancelButton.setIcon(cancelIcon);
         cancelButton.addActionListener(e -> {
             dispose();
         });
 
-        JPanel buttonPanel = new JPanel();
         buttonPanel.add(saveButton);
         buttonPanel.add(cancelButton);
 
+        // Menambahkan panel utama dan panel tombol ke dialog
         getContentPane().add(panel, BorderLayout.CENTER);
         getContentPane().add(buttonPanel, BorderLayout.SOUTH);
     }

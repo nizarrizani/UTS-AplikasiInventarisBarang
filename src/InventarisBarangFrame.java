@@ -46,6 +46,8 @@ public class InventarisBarangFrame extends javax.swing.JFrame {
         jTable1 = new javax.swing.JTable();
         jPanel1 = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
@@ -67,6 +69,7 @@ public class InventarisBarangFrame extends javax.swing.JFrame {
 
         jPanel1.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING));
 
+        jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/add-folder.png"))); // NOI18N
         jButton1.setText("Tambah Barang");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -74,6 +77,24 @@ public class InventarisBarangFrame extends javax.swing.JFrame {
             }
         });
         jPanel1.add(jButton1);
+
+        jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/filter.png"))); // NOI18N
+        jButton2.setText("Filter Barang");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+        jPanel1.add(jButton2);
+
+        jButton3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/undo-alt.png"))); // NOI18N
+        jButton3.setText("Reset Filter");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+        jPanel1.add(jButton3);
 
         getContentPane().add(jPanel1, java.awt.BorderLayout.NORTH);
 
@@ -89,11 +110,26 @@ public class InventarisBarangFrame extends javax.swing.JFrame {
         dialog.setVisible(true);
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        FilterBarangDialog filterDialog = new FilterBarangDialog(this);
+        filterDialog.setVisible(true);
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        updateBarangTable();
+    }//GEN-LAST:event_jButton3ActionPerformed
+
     public void updateBarangTable() {
         try {
             List<Barang> daftarBarang = BarangDatabaseHelper.bacaSemuaBarang();
-
-            // Data barang ditambah kolom nomor urut dan ID
+            updateBarangTable(daftarBarang);
+        } catch (SQLException ex) {
+            Logger.getLogger(InventarisBarangFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public void updateBarangTable(List<Barang> daftarBarang) {
+        // Data barang ditambah kolom nomor urut dan ID
             Object[][] data = new Object[daftarBarang.size()][9];  // 9 kolom: No, Nama, Jenis, Harga, Stok, Lokasi Penyimpanan, Edit, Delete, ID
             populateDataBarang(daftarBarang, data);
 
@@ -115,16 +151,12 @@ public class InventarisBarangFrame extends javax.swing.JFrame {
             // Menambahkan Tombol Edit dan Delete
             addButtonColumnEdit();
             addButtonColumnDelete();
-
-        } catch (SQLException ex) {
-            Logger.getLogger(InventarisBarangFrame.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
 
     // Memasukkan data barang ke dalam array
     private void populateDataBarang(List<Barang> daftarBarang, Object[][] data) {
         NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(Locale.of("in", "ID"));
-        
+
         for (int i = 0; i < daftarBarang.size(); i++) {
             Barang barang = daftarBarang.get(i);
             data[i][0] = i + 1;  // Menambahkan nomor urut
@@ -239,6 +271,8 @@ public class InventarisBarangFrame extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
