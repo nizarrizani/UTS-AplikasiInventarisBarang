@@ -1,13 +1,14 @@
 
 import java.awt.event.ActionEvent;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
@@ -45,9 +46,13 @@ public class InventarisBarangFrame extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
         jPanel1 = new javax.swing.JPanel();
+        jPanel2 = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
+        jPanel3 = new javax.swing.JPanel();
+        jButton4 = new javax.swing.JButton();
+        jButton5 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setResizable(false);
@@ -67,7 +72,9 @@ public class InventarisBarangFrame extends javax.swing.JFrame {
 
         getContentPane().add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
-        jPanel1.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING));
+        jPanel1.setLayout(new java.awt.GridLayout(1, 2));
+
+        jPanel2.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING));
 
         jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/add-folder.png"))); // NOI18N
         jButton1.setText("Tambah Barang");
@@ -76,7 +83,7 @@ public class InventarisBarangFrame extends javax.swing.JFrame {
                 jButton1ActionPerformed(evt);
             }
         });
-        jPanel1.add(jButton1);
+        jPanel2.add(jButton1);
 
         jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/filter.png"))); // NOI18N
         jButton2.setText("Filter Barang");
@@ -85,7 +92,7 @@ public class InventarisBarangFrame extends javax.swing.JFrame {
                 jButton2ActionPerformed(evt);
             }
         });
-        jPanel1.add(jButton2);
+        jPanel2.add(jButton2);
 
         jButton3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/undo-alt.png"))); // NOI18N
         jButton3.setText("Reset Filter");
@@ -94,7 +101,31 @@ public class InventarisBarangFrame extends javax.swing.JFrame {
                 jButton3ActionPerformed(evt);
             }
         });
-        jPanel1.add(jButton3);
+        jPanel2.add(jButton3);
+
+        jPanel1.add(jPanel2);
+
+        jPanel3.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.TRAILING));
+
+        jButton4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/file-export.png"))); // NOI18N
+        jButton4.setText("Export CSV");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
+        jPanel3.add(jButton4);
+
+        jButton5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/file-import.png"))); // NOI18N
+        jButton5.setText("Import CSV");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
+        jPanel3.add(jButton5);
+
+        jPanel1.add(jPanel3);
 
         getContentPane().add(jPanel1, java.awt.BorderLayout.NORTH);
 
@@ -119,6 +150,73 @@ public class InventarisBarangFrame extends javax.swing.JFrame {
         updateBarangTable();
     }//GEN-LAST:event_jButton3ActionPerformed
 
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        // Menampilkan dialog untuk memilih lokasi dan nama file dengan JFileChooser
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Pilih Lokasi untuk Menyimpan File CSV");
+        fileChooser.setSelectedFile(new java.io.File("barang_export.csv"));  // Set default filename
+
+        // Menampilkan dialog untuk memilih file
+        int userSelection = fileChooser.showSaveDialog(this);
+
+        // Jika pengguna memilih "Save"
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            java.io.File fileToSave = fileChooser.getSelectedFile();
+
+            // Pastikan file ekstensi CSV
+            if (!fileToSave.getName().endsWith(".csv")) {
+                fileToSave = new java.io.File(fileToSave.getAbsolutePath() + ".csv");
+            }
+
+            try {
+                BarangDatabaseHelper.exportToCSV(fileToSave.getPath());
+                // Beri tahu pengguna kalau ekspor berhasil
+                JOptionPane.showMessageDialog(this, "Data telah berhasil diekspor ke " + fileToSave.getAbsolutePath(), "Ekspor Sukses", JOptionPane.INFORMATION_MESSAGE);
+            } catch (IOException | SQLException e) {
+                // Jika terjadi kesalahan, tampilkan pesan error
+                JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat ekspor data: " + e.getMessage(), "Kesalahan", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        // Menampilkan dialog untuk memilih file CSV dengan JFileChooser
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Pilih File CSV untuk Diimpor");
+
+        // Menampilkan dialog untuk memilih file
+        int userSelection = fileChooser.showOpenDialog(this);
+
+        // Jika pengguna memilih "Open"
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            java.io.File fileToOpen = fileChooser.getSelectedFile();
+
+            // Pastikan file yang dipilih berformat CSV
+            if (!fileToOpen.getName().endsWith(".csv")) {
+                JOptionPane.showMessageDialog(this, "File yang dipilih bukan file CSV.", "Error", JOptionPane.ERROR_MESSAGE);
+                return; // Jika bukan CSV, berhenti di sini
+            }
+
+            try {
+                BarangDatabaseHelper.importBarangFromCSV(fileToOpen.getPath());
+
+                updateBarangTable();
+                // Beri tahu pengguna bahwa data berhasil diimpor
+                JOptionPane.showMessageDialog(this, "Data berhasil diimpor dari " + fileToOpen.getAbsolutePath(), "Import Sukses", JOptionPane.INFORMATION_MESSAGE);
+            } catch (IOException e) {
+                // Tangani kesalahan saat membaca file CSV
+                JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat membaca file CSV: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (IllegalArgumentException e) {
+                // Tangani kesalahan jika format CSV tidak valid
+                JOptionPane.showMessageDialog(this, "Kesalahan format CSV: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            } catch (SQLException ex) {
+                // Tangani kesalahan SQL dan beri tahu pengguna
+                JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat mengakses database: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            }
+
+        }
+    }//GEN-LAST:event_jButton5ActionPerformed
+
     public void updateBarangTable() {
         try {
             List<Barang> daftarBarang = BarangDatabaseHelper.bacaSemuaBarang();
@@ -127,30 +225,30 @@ public class InventarisBarangFrame extends javax.swing.JFrame {
             Logger.getLogger(InventarisBarangFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     public void updateBarangTable(List<Barang> daftarBarang) {
         // Data barang ditambah kolom nomor urut dan ID
-            Object[][] data = new Object[daftarBarang.size()][9];  // 9 kolom: No, Nama, Jenis, Harga, Stok, Lokasi Penyimpanan, Edit, Delete, ID
-            populateDataBarang(daftarBarang, data);
+        Object[][] data = new Object[daftarBarang.size()][9];  // 9 kolom: No, Nama, Jenis, Harga, Stok, Lokasi Penyimpanan, Edit, Delete, ID
+        populateDataBarang(daftarBarang, data);
 
-            // Nama kolom
-            String[] columnNames = {"No", "Nama", "Jenis", "Harga", "Stok", "Lokasi Penyimpanan", "Action (Edit)", "Action (Delete)", "ID"};
+        // Nama kolom
+        String[] columnNames = {"No", "Nama", "Jenis", "Harga", "Stok", "Lokasi Penyimpanan", "Action (Edit)", "Action (Delete)", "ID"};
 
-            // Membuat model tabel
-            DefaultTableModel model = createTableModel(data, columnNames);
-            jTable1.setModel(model);
-            jTable1.setRowHeight(25);
-            jTable1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        // Membuat model tabel
+        DefaultTableModel model = createTableModel(data, columnNames);
+        jTable1.setModel(model);
+        jTable1.setRowHeight(25);
+        jTable1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-            // Menyembunyikan kolom ID
-            TableColumnModel columnModel = jTable1.getColumnModel();
-            columnModel.getColumn(8).setMinWidth(0);  // Menyembunyikan kolom ID
-            columnModel.getColumn(8).setMaxWidth(0);  // Menyembunyikan kolom ID
-            columnModel.getColumn(8).setWidth(0);    // Menyembunyikan kolom ID
+        // Menyembunyikan kolom ID
+        TableColumnModel columnModel = jTable1.getColumnModel();
+        columnModel.getColumn(8).setMinWidth(0);  // Menyembunyikan kolom ID
+        columnModel.getColumn(8).setMaxWidth(0);  // Menyembunyikan kolom ID
+        columnModel.getColumn(8).setWidth(0);    // Menyembunyikan kolom ID
 
-            // Menambahkan Tombol Edit dan Delete
-            addButtonColumnEdit();
-            addButtonColumnDelete();
+        // Menambahkan Tombol Edit dan Delete
+        addButtonColumnEdit();
+        addButtonColumnDelete();
     }
 
     // Memasukkan data barang ke dalam array
@@ -273,7 +371,11 @@ public class InventarisBarangFrame extends javax.swing.JFrame {
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
     // End of variables declaration//GEN-END:variables
