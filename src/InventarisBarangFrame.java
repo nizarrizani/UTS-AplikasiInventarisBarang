@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
@@ -46,15 +47,17 @@ public class InventarisBarangFrame extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
         jPanel1 = new javax.swing.JPanel();
-        jPanel2 = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
-        jPanel3 = new javax.swing.JPanel();
+        jPanel2 = new javax.swing.JPanel();
+        jButton7 = new javax.swing.JButton();
+        jButton6 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
         jButton5 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Inventaris Barang");
         setResizable(false);
 
         jScrollPane1.setBorder(javax.swing.BorderFactory.createTitledBorder("Daftar Barang"));
@@ -72,9 +75,8 @@ public class InventarisBarangFrame extends javax.swing.JFrame {
 
         getContentPane().add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
-        jPanel1.setLayout(new java.awt.GridLayout(1, 2));
-
-        jPanel2.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING));
+        jPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        jPanel1.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.LEADING));
 
         jButton1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/add-folder.png"))); // NOI18N
         jButton1.setText("Tambah Barang");
@@ -83,7 +85,7 @@ public class InventarisBarangFrame extends javax.swing.JFrame {
                 jButton1ActionPerformed(evt);
             }
         });
-        jPanel2.add(jButton1);
+        jPanel1.add(jButton1);
 
         jButton2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/filter.png"))); // NOI18N
         jButton2.setText("Filter Barang");
@@ -92,7 +94,7 @@ public class InventarisBarangFrame extends javax.swing.JFrame {
                 jButton2ActionPerformed(evt);
             }
         });
-        jPanel2.add(jButton2);
+        jPanel1.add(jButton2);
 
         jButton3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/undo-alt.png"))); // NOI18N
         jButton3.setText("Reset Filter");
@@ -101,11 +103,30 @@ public class InventarisBarangFrame extends javax.swing.JFrame {
                 jButton3ActionPerformed(evt);
             }
         });
-        jPanel2.add(jButton3);
+        jPanel1.add(jButton3);
 
-        jPanel1.add(jPanel2);
+        getContentPane().add(jPanel1, java.awt.BorderLayout.NORTH);
 
-        jPanel3.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.TRAILING));
+        jPanel2.setBorder(javax.swing.BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        jPanel2.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.TRAILING));
+
+        jButton7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/chart-simple.png"))); // NOI18N
+        jButton7.setText("Perbandingan Stok Barang");
+        jButton7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton7ActionPerformed(evt);
+            }
+        });
+        jPanel2.add(jButton7);
+
+        jButton6.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/chart-pie-alt.png"))); // NOI18N
+        jButton6.setText("Statistik Jenis Barang");
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6ActionPerformed(evt);
+            }
+        });
+        jPanel2.add(jButton6);
 
         jButton4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/file-export.png"))); // NOI18N
         jButton4.setText("Export CSV");
@@ -114,7 +135,7 @@ public class InventarisBarangFrame extends javax.swing.JFrame {
                 jButton4ActionPerformed(evt);
             }
         });
-        jPanel3.add(jButton4);
+        jPanel2.add(jButton4);
 
         jButton5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/assets/file-import.png"))); // NOI18N
         jButton5.setText("Import CSV");
@@ -123,11 +144,9 @@ public class InventarisBarangFrame extends javax.swing.JFrame {
                 jButton5ActionPerformed(evt);
             }
         });
-        jPanel3.add(jButton5);
+        jPanel2.add(jButton5);
 
-        jPanel1.add(jPanel3);
-
-        getContentPane().add(jPanel1, java.awt.BorderLayout.NORTH);
+        getContentPane().add(jPanel2, java.awt.BorderLayout.SOUTH);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -216,6 +235,34 @@ public class InventarisBarangFrame extends javax.swing.JFrame {
 
         }
     }//GEN-LAST:event_jButton5ActionPerformed
+
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+        try {
+            // Ambil data dari database
+            Map<String, Integer> data = BarangDatabaseHelper.getJenisDataForPieChart();
+
+            // Tampilkan grafik di dialog
+            GrafikJenisBarangDialog grafikDialog = new GrafikJenisBarangDialog(this, data);
+            grafikDialog.setVisible(true);
+        } catch (SQLException ex) {
+            // Tampilkan dialog pesan error kepada pengguna
+            JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat mengambil data untuk grafik:\n" + ex.getMessage(), "Kesalahan Database", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_jButton6ActionPerformed
+
+    private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
+        try {
+            // Ambil data dari database
+            Map<String, Map<String, Integer>> data = BarangDatabaseHelper.getStokDataForStackedBarChart();
+
+            // Tampilkan grafik di dialog
+            GrafikStokBarangDialog grafikDialog = new GrafikStokBarangDialog(this, data);
+            grafikDialog.setVisible(true);
+        } catch (SQLException ex) {
+            // Tampilkan dialog pesan error kepada pengguna
+            JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat mengambil data untuk grafik:\n" + ex.getMessage(), "Kesalahan Database", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_jButton7ActionPerformed
 
     public void updateBarangTable() {
         try {
@@ -373,9 +420,10 @@ public class InventarisBarangFrame extends javax.swing.JFrame {
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
+    private javax.swing.JButton jButton6;
+    private javax.swing.JButton jButton7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
     // End of variables declaration//GEN-END:variables

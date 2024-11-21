@@ -11,7 +11,9 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class BarangDatabaseHelper {
@@ -191,6 +193,43 @@ public class BarangDatabaseHelper {
             }
         }
         return lokasiList;
+    }
+
+    public static Map<String, Integer> getJenisDataForPieChart() throws SQLException {
+        ensureConnection();  // Pastikan koneksi sudah terinisialisasi
+        Map<String, Integer> dataPieChart = new HashMap<>();
+
+        // Query untuk menghitung jumlah stok berdasarkan jenis
+        String query = "SELECT jenis, SUM(stok) as total_stok FROM barang GROUP BY jenis";
+
+        try (PreparedStatement stmt = connection.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                String jenis = rs.getString("jenis");          // Ambil jenis
+                int totalStok = rs.getInt("total_stok");       // Hitung total stok untuk jenis ini
+                dataPieChart.put(jenis, totalStok);           // Tambahkan ke map
+            }
+        }
+        return dataPieChart;
+    }
+
+    // Ambil data stok tiap barang untuk grafik
+    public static Map<String, Map<String, Integer>> getStokDataForStackedBarChart() throws SQLException {
+        ensureConnection();  // Pastikan koneksi sudah terinisialisasi
+        Map<String, Map<String, Integer>> data = new HashMap<>();
+
+        String query = "SELECT jenis, nama, stok FROM barang";  // Ambil jenis, nama, dan stok barang
+
+        try (PreparedStatement stmt = connection.prepareStatement(query); ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                String jenis = rs.getString("jenis");   // Jenis barang
+                String namaBarang = rs.getString("nama"); // Nama barang
+                int stok = rs.getInt("stok");  // Stok barang
+
+                // Menyimpan stok per barang, dibagi berdasarkan jenis
+                data.computeIfAbsent(jenis, k -> new HashMap<>()).put(namaBarang, stok);
+            }
+        }
+        return data;
     }
 
     public static void exportToCSV(String filePath) throws SQLException, IOException {
